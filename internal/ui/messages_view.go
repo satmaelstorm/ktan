@@ -17,6 +17,7 @@ const tailLimit = 10
 
 type messagesModel struct {
 	kc       *kafka.Client
+	loc      locale
 	topic    string
 	messages []kafka.Message
 	loading  bool
@@ -33,10 +34,10 @@ type messagesLoadedMsg struct {
 
 type backMsg struct{}
 
-func newMessagesModel(kc *kafka.Client, topic string) messagesModel {
+func newMessagesModel(kc *kafka.Client, topic string, loc locale) messagesModel {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
-	return messagesModel{kc: kc, topic: topic, loading: true, spinner: sp}
+	return messagesModel{kc: kc, loc: loc, topic: topic, loading: true, spinner: sp}
 }
 
 func (m messagesModel) load() tea.Cmd {
@@ -57,7 +58,7 @@ func (m *messagesModel) setSize(w, h int) {
 
 func (m messagesModel) renderMessages() string {
 	if len(m.messages) == 0 {
-		return statusStyle.Render("no messages")
+		return statusStyle.Render(m.loc.noMessages)
 	}
 	lines := make([]string, 0, len(m.messages))
 	for _, msg := range m.messages {
@@ -117,17 +118,17 @@ func (m messagesModel) Update(msg tea.Msg) (messagesModel, tea.Cmd) {
 
 func (m messagesModel) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render(fmt.Sprintf("ktan — topic %q (tail %d)", m.topic, tailLimit)))
+	b.WriteString(titleStyle.Render(fmt.Sprintf(m.loc.titleMessages(m.topic, tailLimit), m.topic, tailLimit)))
 	b.WriteString("\n\n")
 	switch {
 	case m.loading:
-		b.WriteString(m.spinner.View() + " loading messages...")
+		b.WriteString(m.spinner.View() + " " + m.loc.loadingMessages)
 	case m.err != "":
-		b.WriteString(errStyle.Render("error: " + m.err))
+		b.WriteString(errStyle.Render(m.loc.errPrefix + m.err))
 	default:
 		b.WriteString(m.viewport.View())
 	}
 	b.WriteString("\n")
-	b.WriteString(statusStyle.Render("↑/↓ scroll • r refresh • esc back • ctrl+c quit"))
+	b.WriteString(statusStyle.Render(m.loc.helpMessages))
 	return b.String()
 }

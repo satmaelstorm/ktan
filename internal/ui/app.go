@@ -18,15 +18,18 @@ type App struct {
 	screen   screen
 	width    int
 	height   int
+	loc      locale
 	topics   topicsModel
 	messages messagesModel
 }
 
-func New(kc *kafka.Client) App {
+func New(kc *kafka.Client, lang string) App {
+	loc := newLocale(lang)
 	return App{
 		kc:     kc,
+		loc:    loc,
 		screen: screenTopics,
-		topics: newTopicsModel(kc),
+		topics: newTopicsModel(kc, loc),
 	}
 }
 
@@ -46,7 +49,7 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case topicSelectedMsg:
 		a.screen = screenMessages
-		a.messages = newMessagesModel(a.kc, msg.topic)
+		a.messages = newMessagesModel(a.kc, msg.topic, a.loc)
 		a.messages.setSize(a.width, a.height)
 		return a, tea.Batch(a.messages.load(), a.messages.spinner.Tick)
 	case backMsg:

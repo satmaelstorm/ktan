@@ -3,6 +3,8 @@ package ui
 import (
 	"context"
 	"fmt"
+	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -14,6 +16,7 @@ import (
 
 type topicsModel struct {
 	kc      *kafka.Client
+	loc     locale
 	topics  []kafka.TopicInfo
 	cursor  int
 	loading bool
@@ -30,10 +33,36 @@ type topicSelectedMsg struct {
 	topic string
 }
 
-func newTopicsModel(kc *kafka.Client) topicsModel {
+// formatMessages форматирует число сообщений: -1 — неизвестно,
+// большие числа — с суффиксом k/M/G.
+func formatMessages(n int64) string {
+	if n < 0 {
+		return "?"
+	}
+	switch {
+	case n >= 1_000_000_000:
+		return trimFloat(float64(n)/1_000_000_000) + "G"
+	case n >= 1_000_000:
+		return trimFloat(float64(n)/1_000_000) + "M"
+	case n >= 10_000:
+		return trimFloat(float64(n)/1_000) + "k"
+	default:
+		return strconv.FormatInt(n, 10)
+	}
+}
+
+func trimFloat(f float64) string {
+	s := strconv.FormatFloat(f, 'f', 1, 64)
+	if math.IsNaN(f) {
+		return "0"
+	}
+	return strings.TrimSuffix(s, ".0")
+}
+
+func newTopicsModel(kc *kafka.Client, loc locale) topicsModel {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
-	return topicsModel{kc: kc, loading: true, spinner: sp}
+	return topicsModel{kc: kc, loc: loc, loading: true, spinner: sp}
 }
 
 func (m topicsModel) load() tea.Cmd {
@@ -93,18 +122,18 @@ func (m topicsModel) Update(msg tea.Msg) (topicsModel, tea.Cmd) {
 
 func (m topicsModel) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render(fmt.Sprintf("ktan — Kafka topics (%d)", len(m.topics))))
+	b.WriteString(titleStyle.Render(fmt.Sprintf(m.loc.titleTopics(len(m.topics)), len(m.topics))))
 	b.WriteString("\n\n")
 	switch {
 	case m.loading:
-		b.WriteString(m.spinner.View() + " loading topics...")
+		b.WriteString(m.spinner.View() + " " + m.loc.loadingTopics)
 	case m.err != "":
-		b.WriteString(errStyle.Render("error: " + m.err))
+		b.WriteString(errStyle.Render(m.loc.errPrefix + m.err))
 	case len(m.topics) == 0:
-		b.WriteString(statusStyle.Render("no topics found"))
+		b.WriteString(statusStyle.Render(m.loc.noTopics))
 	default:
 		for i, t := range m.topics {
-			line := fmt.Sprintf("%s (%d partitions)", t.Name, t.Partitions)
+			line := fmt.Sprintf(m.loc.topicLine(t.Name, t.Partitions, t.Messages), t.Name, t.Partitions, formatMessages(t.Messages))
 			if i == m.cursor {
 				b.WriteString(selectedStyle.Render("> " + line))
 			} else {
@@ -114,6 +143,6 @@ func (m topicsModel) View() string {
 		}
 	}
 	b.WriteString("\n")
-	b.WriteString(statusStyle.Render("↑/↓ move • enter open • r refresh • ctrl+c quit"))
+	b.WriteString(statusStyle.Render(m.loc.helpTopics))
 	return b.String()
 }
