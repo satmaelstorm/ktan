@@ -19,6 +19,7 @@ docker compose up -d
 # собрать и запустить (дефолт -brokers localhost:9092)
 go run . 
 go run . -brokers localhost:9092,other:9092
+go run . -b localhost:9092 -l en
 
 # проверки
 go build ./...
@@ -31,7 +32,9 @@ gofmt -l .
 ## Структура
 
 ```
-main.go                      # CLI-флаг -brokers, запуск bubbletea-программы (alt screen)
+main.go                      # тонкая обёртка: cmd.Execute()
+cmd/
+  root.go                    # корневая cobra-команда: флаги -brokers/-lang, запуск TUI
 internal/kafka/              # слой работы с Kafka, без зависимостей от UI
   client.go                  #   обёртка kgo.Client + mutex на переключение партиций
   topics.go                  #   ListTopics: metadata-запрос, фильтр internal/__*-топиков
