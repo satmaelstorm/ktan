@@ -6,7 +6,10 @@ require (
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/pelletier/go-toml/v2 v2.4.3
+	github.com/spf13/cobra v1.10.2
 	github.com/twmb/franz-go v1.21.6
+	github.com/twmb/franz-go/pkg/kmsg v1.13.1
 )
 
 require (
@@ -30,9 +33,7 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
-	github.com/twmb/franz-go/pkg/kmsg v1.13.1 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.3.8 // indirect

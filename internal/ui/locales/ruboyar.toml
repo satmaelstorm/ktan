@@ -1,0 +1,25 @@
+# Боярский русский съ ятемъ — включается флагомъ -lang=ruboyar или KTAN_LANG=ruboyar.
+
+[common]
+err_prefix = "ПОГРЕШНОСТЬ: вѣсть не дошла — "
+
+[topics]
+title = "ktan — росписи темъ ({count})"
+loading = "Гонцы посланы къ архивамъ... ждёмъ вѣсти"
+no_topics = "Архивы безмолвствуютъ. Скрижалей данныхъ не обрѣтено."
+line = "{name} ({partitions} каналовъ, {messages} вѣстей)"
+help = "↑/↓ шествіе • enter отверзти • r обновити • ctrl+c отступити"
+
+[messages]
+title = "ktan — тема «{topic}» (послѣдніе {tail})"
+loading = "Ждёмъ вѣстей изъ скрижалей..."
+no_messages = "Безмолвіе. Вѣстей нѣтъ."
+help = "↑/↓ шествіе • enter узрѣти • r обновити • esc вспять • ctrl+c отступити"
+
+[message]
+title = "ktan — «{topic}» каналъ {partition} вѣсть {offset}"
+timestamp = "часъ начертанія"
+key = "печать"
+value = "скрижаль"
+value_json = "скрижаль (письмо машинное)"
+help = "↑/↓ свитокъ • esc вспять • ctrl+c отступити"

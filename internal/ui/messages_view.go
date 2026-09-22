@@ -20,6 +20,7 @@ type messagesModel struct {
 	loc      locale
 	topic    string
 	messages []kafka.Message
+	cursor   int
 	loading  bool
 	err      string
 	spinner  spinner.Model
@@ -61,8 +62,13 @@ func (m messagesModel) renderMessages() string {
 		return statusStyle.Render(m.loc.noMessages)
 	}
 	lines := make([]string, 0, len(m.messages))
-	for _, msg := range m.messages {
-		lines = append(lines, m.formatMessage(msg))
+	for i, msg := range m.messages {
+		line := m.formatMessage(msg)
+		if i == m.cursor {
+			lines = append(lines, selectedStyle.Render("> "+line))
+		} else {
+			lines = append(lines, "  "+line)
+		}
 	}
 	return strings.Join(lines, "\n")
 }
@@ -94,6 +100,9 @@ func (m messagesModel) Update(msg tea.Msg) (messagesModel, tea.Cmd) {
 		} else {
 			m.err = ""
 			m.messages = msg.messages
+			if m.cursor >= len(m.messages) {
+				m.cursor = 0
+			}
 		}
 		m.viewport.SetContent(m.renderMessages())
 		m.viewport.GotoBottom()
@@ -102,6 +111,24 @@ func (m messagesModel) Update(msg tea.Msg) (messagesModel, tea.Cmd) {
 		switch msg.String() {
 		case "esc":
 			return m, func() tea.Msg { return backMsg{} }
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+			m.viewport.SetContent(m.renderMessages())
+			return m, nil
+		case "down", "j":
+			if m.cursor < len(m.messages)-1 {
+				m.cursor++
+			}
+			m.viewport.SetContent(m.renderMessages())
+			return m, nil
+		case "enter":
+			if len(m.messages) > 0 {
+				msg := m.messages[m.cursor]
+				topic := m.topic
+				return m, func() tea.Msg { return messageSelectedMsg{topic: topic, msg: msg} }
+			}
 		case "r":
 			m.loading = true
 			m.err = ""
@@ -118,7 +145,7 @@ func (m messagesModel) Update(msg tea.Msg) (messagesModel, tea.Cmd) {
 
 func (m messagesModel) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render(fmt.Sprintf(m.loc.titleMessages(m.topic, tailLimit), m.topic, tailLimit)))
+	b.WriteString(titleStyle.Render(m.loc.titleMessages(m.topic, tailLimit)))
 	b.WriteString("\n\n")
 	switch {
 	case m.loading:

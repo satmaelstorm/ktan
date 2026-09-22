@@ -1,0 +1,25 @@
+# Нейтральный английский — включается флагом -lang=en или KTAN_LANG=en.
+
+[common]
+err_prefix = "error: "
+
+[topics]
+title = "ktan — Kafka topics ({count})"
+loading = "loading topics..."
+no_topics = "no topics found"
+line = "{name} ({partitions} partitions, {messages} messages)"
+help = "↑/↓ move • enter open • r refresh • ctrl+c quit"
+
+[messages]
+title = "ktan — topic \"{topic}\" (tail {tail})"
+loading = "loading messages..."
+no_messages = "no messages"
+help = "↑/↓ move • enter open • r refresh • esc back • ctrl+c quit"
+
+[message]
+title = "ktan — \"{topic}\" p{partition} #{offset}"
+timestamp = "timestamp"
+key = "key"
+value = "value"
+value_json = "value (json)"
+help = "↑/↓ scroll • esc back • ctrl+c quit"

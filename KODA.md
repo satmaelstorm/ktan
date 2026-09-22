@@ -43,7 +43,8 @@ internal/ui/                 # bubbletea-модели
   app.go                     #   корневая модель, роутинг экранов (topics <-> messages)
   i18n.go                    #   локаль интерфейса: localeGothic (дефолт) / localeEn (-lang=en)
   topics_view.go             #   экран списка топиков
-  messages_view.go           #   экран сообщений (tail 10, viewport, refresh по 'r')
+  messages_view.go           #   экран сообщений (tail 10, курсор, viewport, refresh по 'r')
+  message_view.go            #   экран одного сообщения (полный key/value, pretty JSON)
   styles.go                  #   lipgloss-стили + truncate()
 docker-compose.yml           # локальный Kafka (KRaft, 1 брокер, healthcheck)
 ```
@@ -76,6 +77,8 @@ docker-compose.yml           # локальный Kafka (KRaft, 1 брокер, 
 - Список топиков (имя + число партиций), навигация, refresh.
 - Просмотр топика: 10 самых свежих сообщений (timestamp, partition, offset, key, value),
   скролл viewport, refresh, возврат по esc.
+- Просмотр сообщения (enter в списке): полный timestamp/key/value; value автоматически
+  форматируется как pretty JSON (json.Indent, порядок ключей сохранён), если это валидный JSON.
 - Интернационализация: дефолт — готический стиль техножрецов, `-lang=en` / `KTAN_LANG=en` — английский (флаг приоритетнее env).
 - Локальный Kafka в docker-compose для разработки.
 

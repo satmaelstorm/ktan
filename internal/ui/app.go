@@ -11,6 +11,7 @@ type screen int
 const (
 	screenTopics screen = iota
 	screenMessages
+	screenMessage
 )
 
 type App struct {
@@ -21,6 +22,7 @@ type App struct {
 	loc      locale
 	topics   topicsModel
 	messages messagesModel
+	message  messageModel
 }
 
 func New(kc *kafka.Client, lang string) App {
@@ -42,6 +44,7 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.width, a.height = msg.Width, msg.Height
 		a.messages.setSize(a.width, a.height)
+		a.message.setSize(a.width, a.height)
 		return a, nil
 	case tea.KeyMsg:
 		if msg.Type == tea.KeyCtrlC {
@@ -52,6 +55,14 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.messages = newMessagesModel(a.kc, msg.topic, a.loc)
 		a.messages.setSize(a.width, a.height)
 		return a, tea.Batch(a.messages.load(), a.messages.spinner.Tick)
+	case messageSelectedMsg:
+		a.screen = screenMessage
+		a.message = newMessageModel(msg.topic, msg.msg, a.loc)
+		a.message.setSize(a.width, a.height)
+		return a, nil
+	case messageBackMsg:
+		a.screen = screenMessages
+		return a, nil
 	case backMsg:
 		a.screen = screenTopics
 		return a, nil
@@ -59,6 +70,8 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var cmd tea.Cmd
 	switch a.screen {
+	case screenMessage:
+		a.message, cmd = a.message.Update(msg)
 	case screenMessages:
 		a.messages, cmd = a.messages.Update(msg)
 	default:
@@ -68,7 +81,10 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (a App) View() string {
-	if a.screen == screenMessages {
+	switch a.screen {
+	case screenMessage:
+		return a.message.View()
+	case screenMessages:
 		return a.messages.View()
 	}
 	return a.topics.View()

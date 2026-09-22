@@ -1,0 +1,25 @@
+# Готический стиль техножрецов (Adeptus Mechanicus) — локаль по умолчанию.
+
+[common]
+err_prefix = "ERROR: the machine-spirit rebels — "
+
+[topics]
+title = "ktan — Data-canticles of the Omnissiah ({count})"
+loading = "Invoking the archives... ++machine-spirit stirring++"
+no_topics = "The archives are silent. No data-slates found."
+line = "{name} ({partitions} sacred conduits, {messages} data-canticles)"
+help = "↑/↓ commune • enter invoke • r re-rite • ctrl+c sever the link"
+
+[messages]
+title = "ktan — Canticles of \"{topic}\" (last {tail})"
+loading = "Awakening the machine-spirit..."
+no_messages = "Silence. No data-canticles recorded."
+help = "↑/↓ scroll the litany • enter inspect • r re-rite • esc retreat • ctrl+c sever"
+
+[message]
+title = "ktan — \"{topic}\" conduit {partition} canticle {offset}"
+timestamp = "moment of inscription"
+key = "sigil"
+value = "data-slate"
+value_json = "data-slate (machine-script)"
+help = "↑/↓ scroll the inscription • esc retreat • ctrl+c sever"

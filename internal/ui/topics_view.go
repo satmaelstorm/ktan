@@ -133,7 +133,7 @@ func (m topicsModel) View() string {
 		b.WriteString(statusStyle.Render(m.loc.noTopics))
 	default:
 		for i, t := range m.topics {
-			line := fmt.Sprintf(m.loc.topicLine(t.Name, t.Partitions, t.Messages), t.Name, t.Partitions, formatMessages(t.Messages))
+			line := m.loc.topicLine(t.Name, t.Partitions, formatMessages(t.Messages))
 			if i == m.cursor {
 				b.WriteString(selectedStyle.Render("> " + line))
 			} else {
